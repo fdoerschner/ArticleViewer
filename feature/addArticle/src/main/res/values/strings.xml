@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_article_top_bar_title">Artikel hinzufügen</string>
+
+    <string name="add_article_code_input_label">Artikel-Code</string>
+    <string name="add_article_name_input_label">Artikelname</string>
+    <string name="add_article_categories_input_label">Kategorien (Kommagetrennt)</string>
+    <string name="add_article_brand_input_label">Hersteller (Kommagetrennt)</string>
+    <string name="add_article_count_input_label">Initiale Anzahl</string>
+    <string name="add_article_package_quantity_label">Packungsmenge</string>
+
+    <string name="input_out_of_bound_error">Der eingegebene Inhalt ist zu kurz oder zu lang</string>
+    <string name="input_is_mandatory">Pflichtfeld. Hier fehlen Daten.</string>
+    <string name="input_is_not_unique">Der eingegebene Wert ist nicht einzigartig.</string>
+
+    <string name="save">Speichern</string>
+</resources>

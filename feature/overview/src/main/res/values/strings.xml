@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="article_brand_headline">Hersteller</string>
+    <string name="article_categories_headline">Kategorien</string>
+    <string name="article_count_headline">Anzahl an Artikeln</string>
+    <string name="article_count_input_out_of_range">Anzahl muss zwischen 0, 999 sein!</string>
+</resources>
