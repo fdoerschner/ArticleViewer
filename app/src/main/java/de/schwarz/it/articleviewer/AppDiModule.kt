@@ -37,7 +37,10 @@ class AppDiModule {
     }
 
     @Provides
-    fun provideAddArticleNavigator(navigationService: NavigationService) = AddArticleNavigator {
+    fun provideAddArticleNavigator(navigationService: NavigationService) = AddArticleNavigator { id ->
         navigationService.navigate(NavigationTarget.CloseDialog)
+        if (id != null) {
+            navigationService.navigate(NavigationTarget.Route(NavigationTarget.Route.RouteTargets.Detail(id)))
+        }
     }
 }

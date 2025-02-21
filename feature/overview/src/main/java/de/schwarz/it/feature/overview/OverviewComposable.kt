@@ -39,6 +39,7 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,10 +60,17 @@ import de.schwarz.it.feature.overview.DetailArticle.InputError
 @Composable
 fun OverviewScreen(
     modifier: Modifier = Modifier,
+    deeplinkId: Long? = null,
     viewModel: OverviewViewModel = hiltViewModel()
 ) {
     val viewState by viewModel.viewState.collectAsState()
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
+
+    LaunchedEffect(Unit) {
+        deeplinkId?.let {
+            navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
+        }
+    }
 
     BackHandler(navigator.canNavigateBack()) { navigator.navigateBack() }
 

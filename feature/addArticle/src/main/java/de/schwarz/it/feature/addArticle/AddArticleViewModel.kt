@@ -39,7 +39,9 @@ class AddArticleViewModel @Inject constructor(
                 .map { type ->
                     createInputField(type, currentInput[type].orEmpty(), errors[type])
                 },
-            onClose = ::close,
+            onClose = {
+                close(null)
+            },
             onSave = {
                 val code = currentInput[InputFieldType.Code] ?: run {
                     _inputErrors.update { it.plus(InputFieldType.Code to InputError.MandatoryNotFilled) }
@@ -62,7 +64,8 @@ class AddArticleViewModel @Inject constructor(
                                 count = currentInput[InputFieldType.Count]?.toInt() ?: 0
                             )
                         )
-                        close()
+                        close(code.toLong())
+                        addArticleNavigator
                     } catch (e: SQLiteConstraintException) {
                         _inputErrors.update { it.plus(InputFieldType.Code to InputError.CodeAlreadyTaken) }
                     }
@@ -114,9 +117,9 @@ class AddArticleViewModel @Inject constructor(
         }
     }
 
-    private fun close() {
+    private fun close(withId: Long?) {
         _inputsMap.update { emptyMap() }
-        addArticleNavigator.openOverview()
+        addArticleNavigator.openOverview(withId)
     }
 
     enum class InputFieldType(val order: Int, @StringRes val textId: Int) {

@@ -71,6 +71,7 @@ class MainActivity : ComponentActivity() {
                 var currentDestination by rememberSaveable(target) {
                     val route = when ((target as? Route)?.target) {
                         Route.RouteTargets.Overview -> BottomBarItem.Overview
+                        is Route.RouteTargets.Detail -> BottomBarItem.Overview
                         Route.RouteTargets.Settings -> BottomBarItem.Settings
                         null -> BottomBarItem.Overview
                     }
@@ -94,12 +95,13 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 ) {
-                    when (currentDestination) {
-                        BottomBarItem.Overview -> {
-                            OverviewScreen(Modifier.safeContentPadding())
+                    if (target is Route) {
+                        when (val route = (target as? Route)?.target) {
+                            is Route.RouteTargets.Detail -> OverviewScreen(modifier = Modifier.safeContentPadding(), deeplinkId = route.id)
+                            Route.RouteTargets.Overview -> OverviewScreen(modifier = Modifier.safeContentPadding())
+                            Route.RouteTargets.Settings -> Unit
+                            else -> Unit
                         }
-
-                        BottomBarItem.Settings -> Unit
                     }
 
                     if (showDialog) {

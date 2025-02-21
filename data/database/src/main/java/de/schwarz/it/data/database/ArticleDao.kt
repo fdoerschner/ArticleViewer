@@ -14,7 +14,7 @@ abstract class ArticleDao {
     @Insert
     abstract fun singleArticle(article: Article)
 
-    @Query("SELECT * FROM article")
+    @Query("SELECT * FROM article ORDER BY code ASC")
     abstract fun getAll(): Flow<List<Article>>
 
     @Query("SELECT COUNT(code) > 0 FROM article")

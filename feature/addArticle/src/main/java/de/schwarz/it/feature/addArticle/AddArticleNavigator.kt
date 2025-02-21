@@ -1,5 +1,5 @@
 package de.schwarz.it.feature.addArticle
 
 fun interface AddArticleNavigator {
-    fun openOverview()
+    fun openOverview(id: Long?)
 }
