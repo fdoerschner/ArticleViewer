@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Overview view model providing a [viewState] to be shown and displayed by the implementor.
+ */
 @HiltViewModel
 class OverviewViewModel @Inject constructor(
     private val articleDao: ArticleDao,
@@ -39,10 +42,10 @@ class OverviewViewModel @Inject constructor(
                                     null
                                 }
                             }
-                        }
+                        },
                     )
                 } ?: DetailArticle.Empty
-            }
+            },
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), OverviewViewState(emptyList(), { DetailArticle.Empty }, {}))
 

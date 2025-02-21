@@ -14,6 +14,7 @@ android.namespace = "de.schwarz.it.feature.overview"
 
 dependencies {
     implementation(project(":data:database"))
+    implementation(project(":core:common"))
 
     implementation(libs.androidx.material3.appcompat)
     implementation(libs.androidx.material3.adaptive)

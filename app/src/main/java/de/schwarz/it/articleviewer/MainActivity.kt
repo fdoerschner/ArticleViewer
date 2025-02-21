@@ -4,14 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
@@ -19,8 +21,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.schwarz.it.articleviewer.ui.theme.ArticleViewerTheme
@@ -36,6 +38,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Main entry point to the app. Holds navigation, opens and closes the database,
+ */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
@@ -56,7 +61,7 @@ class MainActivity : ComponentActivity() {
                 var target by remember {
                     mutableStateOf<NavigationTarget>(
                         value = Route(Route.RouteTargets.Overview),
-                        policy = neverEqualPolicy()
+                        policy = neverEqualPolicy(),
                     )
                 }
                 var showDialog by remember {
@@ -69,13 +74,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 var currentDestination by rememberSaveable(target) {
-                    val route = when ((target as? Route)?.target) {
-                        Route.RouteTargets.Overview -> BottomBarItem.Overview
-                        is Route.RouteTargets.Detail -> BottomBarItem.Overview
-                        Route.RouteTargets.Settings -> BottomBarItem.Settings
-                        null -> BottomBarItem.Overview
-                    }
-                    mutableStateOf(route)
+                    mutableStateOf((target as? Route)?.target.toBottomBarItem())
                 }
                 NavigationSuiteScaffold(
                     navigationSuiteItems = {
@@ -90,18 +89,13 @@ class MainActivity : ComponentActivity() {
                                 onClick = {
                                     currentDestination = item
                                 },
-                                selected = item == currentDestination
+                                selected = item == currentDestination,
                             )
                         }
-                    }
+                    },
                 ) {
-                    if (target is Route) {
-                        when (val route = (target as? Route)?.target) {
-                            is Route.RouteTargets.Detail -> OverviewScreen(modifier = Modifier.safeContentPadding(), deeplinkId = route.id)
-                            Route.RouteTargets.Overview -> OverviewScreen(modifier = Modifier.safeContentPadding())
-                            Route.RouteTargets.Settings -> Unit
-                            else -> Unit
-                        }
+                    (target as? Route)?.let { route ->
+                        NavigationTargetSink(route)
                     }
 
                     if (showDialog) {
@@ -114,21 +108,48 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @Composable
+    private fun NavigationTargetSink(target: Route) {
+        when (val route = target.target) {
+            is Route.RouteTargets.Detail -> OverviewScreen(modifier = Modifier.safeContentPadding(), deeplinkId = route.id)
+            Route.RouteTargets.Overview -> OverviewScreen(modifier = Modifier.safeContentPadding())
+            Route.RouteTargets.Settings -> Unit
+            else -> Unit
+        }
+    }
+
     private fun openAndFillDatabase() {
         lifecycleScope.launch(Dispatchers.IO) {
             if (!articleDao.hasArticles()) {
                 val articles = dataFetcher.loadArticles()
-                articleDao.addAll(articles.map { article ->
-                    Article(
-                        code = article.code,
-                        name = article.name,
-                        packageQuantity = article.quantity,
-                        brands = article.brands,
-                        categories = article.categories,
-                        count = 0
-                    )
-                })
+                articleDao.addAll(
+                    articles.map { article ->
+                        Article(
+                            code = article.code,
+                            name = article.name,
+                            packageQuantity = article.quantity,
+                            brands = article.brands,
+                            categories = article.categories,
+                            count = 0,
+                        )
+                    },
+                )
             }
         }
+    }
+
+    private fun Route.RouteTargets?.toBottomBarItem() = when (this) {
+        Route.RouteTargets.Overview -> BottomBarItem.Overview
+        is Route.RouteTargets.Detail -> BottomBarItem.Overview
+        Route.RouteTargets.Settings -> BottomBarItem.Settings
+        null -> BottomBarItem.Overview
+    }
+
+    private enum class BottomBarItem(
+        @StringRes val titleId: Int,
+        val icon: ImageVector,
+    ) {
+        Overview(R.string.nav_item_overview, Icons.Default.Home),
+        Settings(R.string.nav_item_settings, Icons.Default.Settings),
     }
 }

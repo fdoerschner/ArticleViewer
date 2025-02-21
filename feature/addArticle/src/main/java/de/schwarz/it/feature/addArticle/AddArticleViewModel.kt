@@ -18,6 +18,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Viewmodel to add an article to the database and handle the different kind of input errors.
+ */
 @HiltViewModel
 class AddArticleViewModel @Inject constructor(
     private val articleDao: ArticleDao,
@@ -31,7 +34,7 @@ class AddArticleViewModel @Inject constructor(
                 checkForInputError(type, currentInput[type].orEmpty())
             }
         },
-        _inputErrors
+        _inputErrors,
     ) { currentInput, errors ->
         AddArticleViewState(
             inputs = InputFieldType.entries
@@ -61,16 +64,16 @@ class AddArticleViewModel @Inject constructor(
                                 packageQuantity = currentInput[InputFieldType.PackageQuantity].orEmpty(),
                                 brands = currentInput[InputFieldType.Brand].orEmpty().split(","),
                                 categories = currentInput[InputFieldType.Categories].orEmpty().split(","),
-                                count = currentInput[InputFieldType.Count]?.toInt() ?: 0
-                            )
+                                count = currentInput[InputFieldType.Count]?.toInt() ?: 0,
+                            ),
                         )
                         close(code.toLong())
                         addArticleNavigator
-                    } catch (e: SQLiteConstraintException) {
+                    } catch (_: SQLiteConstraintException) {
                         _inputErrors.update { it.plus(InputFieldType.Code to InputError.CodeAlreadyTaken) }
                     }
                 }
-            }
+            },
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AddArticleViewState(emptyList(), onSave = {}, onClose = {}))
 
@@ -100,16 +103,18 @@ class AddArticleViewModel @Inject constructor(
 
     private fun checkForInputError(type: InputFieldType, value: String): InputError? {
         val count = value.trim().count()
+        val codeInputBounds = 1..6
+        val nameInputBounds = 1..3
         return when (type) {
             InputFieldType.Code -> when (count) {
                 0 -> InputError.MandatoryNotFilled
-                in 1..6 -> InputError.InputOutOfBounds
+                in codeInputBounds -> InputError.InputOutOfBounds
                 else -> null
             }
 
             InputFieldType.Name -> when (count) {
                 0 -> InputError.MandatoryNotFilled
-                in 1..3 -> InputError.InputOutOfBounds
+                in nameInputBounds -> InputError.InputOutOfBounds
                 else -> null
             }
 
@@ -122,12 +127,13 @@ class AddArticleViewModel @Inject constructor(
         addArticleNavigator.openOverview(withId)
     }
 
-    enum class InputFieldType(val order: Int, @StringRes val textId: Int) {
+    @Suppress("MagicNumber")
+    private enum class InputFieldType(val order: Int, @StringRes val textId: Int) {
         Code(0, R.string.add_article_code_input_label),
         Name(1, R.string.add_article_name_input_label),
         Brand(2, R.string.add_article_brand_input_label),
         PackageQuantity(3, R.string.add_article_package_quantity_label),
         Categories(4, R.string.add_article_categories_input_label),
-        Count(5, R.string.add_article_count_input_label)
+        Count(5, R.string.add_article_count_input_label),
     }
 }

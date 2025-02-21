@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 package de.schwarz.it.articleviewer.ui.theme
 
 import androidx.compose.ui.graphics.Color

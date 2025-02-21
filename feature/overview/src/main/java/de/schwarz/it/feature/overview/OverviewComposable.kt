@@ -26,11 +26,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
@@ -52,16 +50,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import de.schwarz.it.core.common.PaddingDefaults
 import de.schwarz.it.feature.overview.DetailArticle.InputError
 
+/**
+ * Overview screen displaying an adaptive Layout with a list and detail view. If a [deeplinkId] is provided, the detail view will
+ * be seen directly.
+ */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun OverviewScreen(
     modifier: Modifier = Modifier,
     deeplinkId: Long? = null,
-    viewModel: OverviewViewModel = hiltViewModel()
+    viewModel: OverviewViewModel = hiltViewModel(),
 ) {
     val viewState by viewModel.viewState.collectAsState()
     val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
@@ -85,7 +87,7 @@ fun OverviewScreen(
                     onAddClick = viewState.onAddArticle,
                     onItemClick = { id ->
                         navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, id)
-                    }
+                    },
                 )
             }
         },
@@ -97,11 +99,11 @@ fun OverviewScreen(
                         canNavigateBack = navigator.canNavigateBack(),
                         onBack = {
                             navigator.navigateBack()
-                        }
+                        },
                     )
                 }
             }
-        }
+        },
     )
 }
 
@@ -110,7 +112,7 @@ private fun OverviewListScreen(
     articles: List<OverviewArticle>,
     onItemClick: (Long) -> Unit,
     onAddClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         modifier = modifier,
@@ -118,13 +120,16 @@ private fun OverviewListScreen(
             FloatingActionButton(onClick = onAddClick) {
                 Icon(Icons.Default.Add, contentDescription = "")
             }
-        }
+        },
     ) {
-        LazyColumn(modifier = Modifier.padding(it), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        LazyColumn(modifier = Modifier.padding(it), verticalArrangement = Arrangement.spacedBy(PaddingDefaults.smallPadding)) {
             items(articles) { article ->
-                OverviewItem(article, Modifier.clickable {
-                    onItemClick(article.id)
-                })
+                OverviewItem(
+                    article,
+                    Modifier.padding(horizontal = PaddingDefaults.defaultPadding).clickable {
+                        onItemClick(article.id)
+                    },
+                )
             }
         }
     }
@@ -133,14 +138,14 @@ private fun OverviewListScreen(
 @Composable
 private fun OverviewItem(article: OverviewArticle, modifier: Modifier = Modifier) {
     Card(
-        modifier = modifier
+        modifier = modifier,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = PaddingDefaults.defaultPadding, vertical = PaddingDefaults.smallPadding),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(article.name, style = MaterialTheme.typography.bodyLarge)
@@ -150,8 +155,8 @@ private fun OverviewItem(article: OverviewArticle, modifier: Modifier = Modifier
             val color = if (article.count > 0) Color.Green else Color.Red
             Box(
                 modifier = Modifier
-                    .size(24.dp)
-                    .background(color = color, shape = CircleShape)
+                    .size(PaddingDefaults.bigPadding)
+                    .background(color = color, shape = CircleShape),
             )
         }
     }
@@ -159,7 +164,12 @@ private fun OverviewItem(article: OverviewArticle, modifier: Modifier = Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CountingScreen(article: DetailArticle, canNavigateBack: Boolean, onBack: () -> Unit, modifier: Modifier = Modifier) {
+private fun CountingScreen(
+    article: DetailArticle,
+    canNavigateBack: Boolean,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -167,7 +177,7 @@ private fun CountingScreen(article: DetailArticle, canNavigateBack: Boolean, onB
                 navigationIcon = {
                     if (canNavigateBack) {
                         IconButton(
-                            onClick = onBack
+                            onClick = onBack,
                         ) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "")
                         }
@@ -175,15 +185,15 @@ private fun CountingScreen(article: DetailArticle, canNavigateBack: Boolean, onB
                 },
                 title = {
                     Text(article.name)
-                }
+                },
             )
-        }
+        },
     ) {
         LazyColumn(
             modifier = Modifier
                 .padding(it)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = PaddingDefaults.defaultPadding),
+            verticalArrangement = Arrangement.spacedBy(PaddingDefaults.defaultPadding),
         ) {
             item {
                 CountingElementHeadline(stringResource(R.string.article_brand_headline))
@@ -204,9 +214,9 @@ private fun CountingScreen(article: DetailArticle, canNavigateBack: Boolean, onB
 @Composable
 private fun CountingElementHeadline(headline: String, modifier: Modifier = Modifier) {
     Text(
-        modifier = modifier.padding(bottom = 4.dp),
+        modifier = modifier.padding(bottom = PaddingDefaults.tinyPadding),
         text = headline,
-        style = MaterialTheme.typography.bodyMedium
+        style = MaterialTheme.typography.bodyMedium,
     )
 }
 
@@ -235,7 +245,7 @@ private fun CountingInput(count: Int, changeCount: (Int) -> InputError?, modifie
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
             isError = error != null,
 
-            )
+        )
         IconButton(onClick = {
             error = onChange(count - 1)
         }) {
@@ -247,6 +257,7 @@ private fun CountingInput(count: Int, changeCount: (Int) -> InputError?, modifie
 @Preview
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
+@Suppress("MagicNumber")
 private fun OverviewItemPreview() {
     OverviewItem(OverviewArticle("Klosergarten Delikatess Gurkenfäßchen", 123456789, count = 0))
 }

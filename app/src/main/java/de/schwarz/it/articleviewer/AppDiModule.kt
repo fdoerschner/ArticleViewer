@@ -17,12 +17,14 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
+@Suppress("UndocumentedPublicClass", "UndocumentedPublicFunction")
 class AppDiModule {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Provides
     @Singleton
     fun provideRouteRepository() = object : NavigationService {
-        private val _navigation = MutableSharedFlow<NavigationTarget>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+        private val _navigation =
+            MutableSharedFlow<NavigationTarget>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
         override val currentNavigation: Flow<NavigationTarget>
             get() = _navigation.onEach { _navigation.resetReplayCache() }
 

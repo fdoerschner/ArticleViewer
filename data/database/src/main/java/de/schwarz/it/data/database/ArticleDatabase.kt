@@ -5,11 +5,14 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import de.schwarz.it.data.database.entities.Article
 
+/**
+ * Article database
+ */
 @Database(
     entities = [
-        Article::class
+        Article::class,
     ],
-    version = 1
+    version = 1,
 )
 @TypeConverters(ListConverter::class)
 abstract class ArticleDatabase : RoomDatabase() {

@@ -9,9 +9,10 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
+@Suppress("UndocumentedPublicClass", "UndocumentedPublicFunction")
 class FetcherModule {
     @Provides
     fun provideDataFetcher(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
     ): ArticleDataFetcher = StaticLoader(context)
 }
